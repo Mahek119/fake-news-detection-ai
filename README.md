@@ -129,18 +129,6 @@ Interactive Visualization Dashboard
 
 ---
 
-## Screenshots
-
-Add screenshots here:
-
-* Homepage UI
-* REAL prediction example
-* FAKE prediction example
-* Confidence charts
-* Analysis dashboard
-
----
-
 ## Installation
 
 ### Clone Repository
