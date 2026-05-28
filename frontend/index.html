@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Fake News Detection AI</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: #0f172a;
+            color: #e2e8f0;
+            margin: 0;
+        }
+
+        h1 {
+            text-align: center;
+            color: #38bdf8;
+            margin-top: 20px;
+        }
+
+        .container {
+            width: 75%;
+            margin: 20px auto;
+        }
+
+        .card {
+            background: #1e293b;
+            padding: 20px;
+            border-radius: 15px;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: none;
+        }
+
+        button {
+            margin-top: 10px;
+            padding: 10px 20px;
+            background: #38bdf8;
+            border-radius: 8px;
+            border: none;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        /* 🔥 REAL vs FAKE BAR */
+        .prediction-track {
+    width: 100%;
+    height: 35px;
+    background: #e5e7eb;   /* 👈 light gray / white track */
+    border-radius: 20px;
+    overflow: hidden;
+    margin-top: 20px;
+}
+
+.real-bar {
+    background: #22c55e;
+    height: 100%;
+    text-align: center;
+    line-height: 35px;
+    font-weight: bold;
+    color: white;
+}
+
+.fake-bar {
+    background: #ef4444;
+    height: 100%;
+    text-align: center;
+    line-height: 35px;
+    font-weight: bold;
+    color: white;
+}
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .box {
+            background: #334155;
+            padding: 12px;
+            border-radius: 10px;
+            height: 240px;
+        }
+
+        canvas {
+            max-height: 170px !important;
+        }
+
+        .info {
+            margin-top: 20px;
+            background: #334155;
+            padding: 15px;
+            border-radius: 10px;
+        }
+
+        ul {
+            padding-left: 20px;
+        }
+    </style>
+</head>
+
+<body>
+
+<h1>🧠 Fake News Detection AI</h1>
+
+<div class="container">
+<div class="card">
+
+<form action="/news/check" method="post">
+    <textarea name="text" rows="4"
+        placeholder="Enter news..."
+        th:text="${inputText}"></textarea>
+    <button type="submit">Analyze</button>
+</form>
+
+<div th:if="${result != null}">
+
+    <!-- 🔥 REAL vs FAKE BAR -->
+   <div class="prediction-track">
+
+    <!-- REAL -->
+    <div th:if="${result.contains('REAL')}"
+         class="real-bar"
+         th:style="'width:' + (${confidence} * 100) + '%'">
+        <!--REAL ([[${confidence * 100}]]%) -->
+        REAL ([[${#numbers.formatDecimal(confidence * 100, 1, 2)}]]%)
+    </div>
+
+    <!-- FAKE -->
+    <div th:if="${result.contains('FAKE')}"
+         class="fake-bar"
+         th:style="'width:' + (${confidence} * 100) + '%'">
+        <!--FAKE ([[${confidence * 100}]]%) -->
+         FAKE ([[${#numbers.formatDecimal(confidence * 100, 1, 2)}]]%)
+    </div>
+
+</div>
+
+    <!-- GRID -->
+    <div class="grid">
+
+        <div class="box">
+            <h3>📊 Confidence</h3>
+            <canvas id="confidenceChart"></canvas>
+        </div>
+
+        <div class="box">
+            <h3>⚖️ Scores</h3>
+            <canvas id="scoreChart"></canvas>
+        </div>
+
+    </div>
+
+    <!-- 🔥 COMBINED SECTION -->
+    <div class="info">
+
+        <h3>🔍 Analysis Summary</h3>
+
+        <p><b>Confidence:</b> <span th:text="${confidence}"></span></p>
+        <p><b>Evidence Score:</b> <span th:text="${evidenceScore}"></span></p>
+        <p><b>Style Score:</b> <span th:text="${style}"></span></p>
+
+        <p><b>Explanation:</b> <span th:text="${explanation}"></span></p>
+
+        <p><b>Top Evidence:</b></p>
+        <ul>
+            <li th:each="e : ${evidence}" th:text="${e}"></li>
+        </ul>
+
+    </div>
+
+</div>
+
+</div>
+</div>
+
+<script th:if="${result != null}">
+    const confidence = [[${confidence}]];
+    const style = [[${style}]];
+    const evidence = [[${evidenceScore}]];
+
+    new Chart(document.getElementById('confidenceChart'), {
+        type: 'doughnut',
+        data: {
+            datasets: [{
+                data: [confidence, 1 - confidence],
+                backgroundColor: ['#22c55e', '#1e293b']
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false
+        }
+    });
+
+    new Chart(document.getElementById('scoreChart'), {
+        type: 'bar',
+        data: {
+            labels: ['Style', 'Evidence'],
+            datasets: [{
+                data: [style, evidence],
+                backgroundColor: ['#38bdf8', '#facc15']
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false
+        }
+    });
+</script>
+
+</body>
+</html>
