@@ -12,7 +12,7 @@ app = FastAPI()
 # =========================
 # LOAD MODEL
 # =========================
-MODEL_PATH = "C:/Users/mahek/capstone/bert_model"
+MODEL_PATH = "C:/Users/capstone/bert_model"
 device = torch.device("cpu")
 
 tokenizer = AutoTokenizer.from_pretrained(MODEL_PATH)
